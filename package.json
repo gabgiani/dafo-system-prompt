@@ -3,6 +3,7 @@
   "displayName": "dafo copilot system prompt",
   "description": "DAFO System Prompt configure a prompts inside vs code",
   "version": "0.0.1",
+  "publisher": "DAFO AI Ltd - Gabriel Giani Moreno gabriel.giani@gmail.com",
   "engines": {
     "vscode": "^1.97.0"
   },

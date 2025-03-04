@@ -124,21 +124,36 @@ class CopilotPromptPanel {
         <button onclick="savePrompt()">Save</button>
         
         <script>
-          const vscode = acquireVsCodeApi();
-          let currentLanguage = "python";
+        const vscode = acquireVsCodeApi();
+        let currentLanguage = "python";
 
-          function switchTab(language) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelector('.tab[onclick="switchTab(\'' + language + '\')"]').classList.add('active');
-            currentLanguage = language;
-          }
+        function switchTab(language) {
+          document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+          document.querySelector('.tab[onclick="switchTab(\'' + language + '\')"]').classList.add('active');
+          currentLanguage = language;
+          console.log("Switching tab to:", currentLanguage); // DEBUG LOG
+          loadPrompt();
+        }
 
-          function savePrompt() {
-            const prompt = document.getElementById("promptText").value;
-            vscode.postMessage({ command: "savePrompt", language: currentLanguage, prompt });
+        function savePrompt() {
+          const prompt = document.getElementById("promptText").value;
+          vscode.postMessage({ command: "savePrompt", language: currentLanguage, prompt: prompt });
+        }
+
+        function loadPrompt() {
+          vscode.postMessage({ command: "loadPrompt", language: currentLanguage });
+        }
+
+        window.addEventListener("message", (event) => {
+          const message = event.data;
+          if (message.command === "setPrompt") {
+            document.getElementById("promptText").value = message.prompt;
           }
-        </script>
-      </body>
+        });
+
+        loadPrompt();
+      </script>
+   </body>
       </html>
     `;
   }
@@ -147,16 +162,33 @@ class CopilotPromptPanel {
     webview.onDidReceiveMessage((message) => {
       if (message.command === "savePrompt") {
         this.savePromptToFile(message.language, message.prompt);
+      } else if (message.command === "loadPrompt") {
+        this.loadPromptFromFile(message.language);
       }
     }, null, this._disposables);
   }
-
+  
+  // Save the prompt for the selected language
   private savePromptToFile(language: string, prompt: string) {
     const workspaceFolders = vscode.workspace.workspaceFolders;
-    if (!workspaceFolders) return;
-
+    if (!workspaceFolders) {return};
+  
     const promptFilePath = path.join(workspaceFolders[0].uri.fsPath, `.copilot-prompt-${language}`);
     fs.writeFileSync(promptFilePath, prompt, "utf-8");
     vscode.window.showInformationMessage(`Copilot Prompt for ${language} saved successfully!`);
+  }
+  
+  // Load the existing prompt when switching tabs
+  private loadPromptFromFile(language: string) {
+    const workspaceFolders = vscode.workspace.workspaceFolders;
+    if (!workspaceFolders) {return};
+  
+    const promptFilePath = path.join(workspaceFolders[0].uri.fsPath, `.copilot-prompt-${language}`);
+    let prompt = "";
+    if (fs.existsSync(promptFilePath)) {
+      prompt = fs.readFileSync(promptFilePath, "utf-8");
+    }
+  
+    this._panel.webview.postMessage({ command: "setPrompt", prompt: prompt });
   }
 }
