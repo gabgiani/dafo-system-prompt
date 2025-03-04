@@ -24,3 +24,4 @@ To install the extension locally, follow these steps:
 ## License
 
 MIT License
+Author: Gabriel Giani Moreno , Credits to CHATGPT-4o
