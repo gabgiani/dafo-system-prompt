@@ -1,9 +1,13 @@
 {
   "name": "dafo-system-prompt",
-  "displayName": "dafo copilot system prompt",
+  "displayName": "DAFO Copilot System Prompt",
   "description": "DAFO System Prompt configure a prompts inside vs code",
   "version": "0.0.2",
-  "publisher": "DAFO AI Ltd - Gabriel Giani Moreno gabriel.giani@gmail.com",
+  "publisher": "DAFOAI",
+  "author": {
+    "name": "Gabriel Giani Moreno",
+    "email": "gabriel.giani@dafo.ai"
+  },
   "engines": {
     "vscode": "^1.97.0"
   },
@@ -14,15 +18,51 @@
     "type": "git",
     "url": "https://github.com/gabgiani/dafo-system-prompt.git"
   },
-  "activationEvents": [],
+  "activationEvents": [
+    "workspaceContains:**/.vscode/copilot.json",
+    "workspaceContains:**/.github/copilot-instructions.md",
+    "workspaceContains:**/.github/prompts/*.prompt.md"
+  ],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
         "command": "copilotPromptConfig.open",
-        "title": "Configure Copilot Prompt"
+        "title": "Copilot: Configure Prompts"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Copilot Prompt Customizer",
+      "properties": {
+        "copilotPrompt.enableWorkspacePrompts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable workspace-level Copilot prompts"
+        },
+        "copilotPrompt.enableLanguageSpecific": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable language-specific Copilot prompts"
+        },
+        "copilotPrompt.enablePromptFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable .prompt.md files in .github/prompts"
+        },
+        "github.copilot.chat.codeGeneration.useInstructionFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Use instructions from .github/copilot-instructions.md"
+        },
+        "chat.promptFiles": {
+          "type": "object",
+          "default": {
+            ".github/prompts": true
+          },
+          "description": "Configure prompt file locations"
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run package",
